@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Payment - York Heritage</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;500;600;700&family=Be+Vietnam+Pro:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        body { font-family: 'Be Vietnam Pro', sans-serif; }
+        .payment-container {
+            max-width: 600px;
+            margin: 0 auto;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #1C0A00, #2C1A0E);
+            padding: 40px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .payment-card {
+            background: white;
+            border-radius: 24px;
+            padding: 32px;
+            text-align: center;
+            width: 100%;
+            box-shadow: 0 16px 40px rgba(0,0,0,0.3);
+        }
+        .logo-icon {
+            width: 64px;
+            height: 64px;
+            background: #C8860A;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+            font-size: 28px;
+            color: white;
+        }
+        .payment-amount {
+            font-size: 32px;
+            color: #C8860A;
+            font-weight: 700;
+            margin: 12px 0;
+        }
+        .qr-wrapper {
+            background: white;
+            border: 2px solid #E8E0D8;
+            border-radius: 16px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin: 16px auto;
+            padding: 16px;
+            min-width: 232px;
+            min-height: 232px;
+        }
+        #qrcode img, #qrcode canvas {
+            display: block;
+        }
+        .qr-loading {
+            color: #999;
+            font-size: 13px;
+        }
+        .kode-order {
+            background: #F5F0EB;
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-family: monospace;
+            font-size: 16px;
+            letter-spacing: 2px;
+            margin: 12px 0;
+            color: #2C1A0E;
+            font-weight: 700;
+        }
+        .payment-instruction {
+            text-align: left;
+            margin: 20px 0;
+            padding: 14px 16px;
+            background: #E8F5E9;
+            border-radius: 12px;
+            font-size: 14px;
+            line-height: 1.8;
+            color: #2C1A0E;
+        }
+        .payment-instruction strong { color: #2e7d32; }
+        .countdown-timer {
+            font-size: 14px;
+            color: #f44336;
+            margin: 12px 0;
+            font-weight: 500;
+        }
+        .btn-secondary {
+            background: transparent;
+            border: 2px solid #C8860A;
+            color: #C8860A;
+            padding: 12px 20px;
+            border-radius: 12px;
+            font-family: 'Be Vietnam Pro', sans-serif;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 10px;
+            width: 100%;
+        }
+        .btn-secondary:hover { background: #C8860A; color: white; }
+        .btn-secondary:disabled { opacity: 0.6; cursor: not-allowed; }
+        .btn-cancel {
+            border-color: #f44336;
+            color: #f44336;
+        }
+        .btn-cancel:hover { background: #f44336; color: white; }
+        .toast-msg {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 12px 20px;
+            border-radius: 50px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 2000;
+            font-family: 'Be Vietnam Pro', sans-serif;
+            font-size: 14px;
+            font-weight: 500;
+            white-space: nowrap;
+            animation: slideUp 0.3s ease;
+        }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateX(-50%) translateY(10px); }
+            to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <div class="payment-container">
+        <div class="payment-card">
+            <div class="logo-icon">
+                <i class="fa-solid fa-qrcode"></i>
+            </div>
+
+            <h2 style="color:#2C1A0E; font-size:20px;">Scan QR Code to Pay</h2>
+            <div class="payment-amount" id="paymentAmount">Rp 0</div>
+
+            <div class="qr-wrapper">
+                <div id="qrcode">
+                    <div class="qr-loading">
+                        <i class="fa-solid fa-spinner fa-spin" style="font-size:24px; color:#C8860A; display:block; margin-bottom:8px;"></i>
+                        Generating QR...
+                    </div>
+                </div>
+            </div>
+
+            <div class="kode-order">
+                Order Code: <span id="kodeOrder">-</span>
+            </div>
+
+            <div class="payment-instruction">
+                <i class="fa-regular fa-circle-check" style="color:#4CAF50; margin-right:6px;"></i>
+                <strong>How to Pay:</strong><br>
+                1. Scan QR Code above using payment app<br>
+                2. Complete the payment<br>
+                3. Show payment confirmation to cashier<br>
+                4. Your order will be processed
+            </div>
+
+            <div class="countdown-timer" id="countdownTimer">
+                <i class="fa-regular fa-clock"></i> Waiting for payment confirmation...
+            </div>
+
+            <button id="checkStatusBtn" class="btn-secondary">
+                <i class="fa-regular fa-rotate-right"></i> Check Payment Status
+            </button>
+            <button id="cancelOrderBtn" class="btn-secondary btn-cancel">
+                <i class="fa-regular fa-circle-xmark"></i> Cancel Order
+            </button>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/@supabase/supabase-js@2.39.0/dist/umd/supabase.js"></script>
+    <script>
+        // ============ INIT SUPABASE ============
+        const SUPABASE_URL = 'https://jlagwghdwyrejsapourt.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_qjTC0cTyjCMaqAHvXLlI6g_EhU3_caa';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        let paymentCheckInterval;
+        let countdownInterval;
+        let timeLeft = 600;
+
+        // ============ HELPERS ============
+        function formatPrice(price) {
+            return new Intl.NumberFormat('id-ID').format(price);
+        }
+
+        function showToast(message, isError = false) {
+            document.querySelectorAll('.toast-msg').forEach(t => t.remove());
+            const toast = document.createElement('div');
+            toast.className = 'toast-msg';
+            toast.style.background = isError ? '#ffebee' : '#e8f5e9';
+            toast.style.color = isError ? '#c62828' : '#2e7d32';
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        // ============ QR CODE ============
+        function buildQR(paymentData) {
+            const qrContainer = document.getElementById('qrcode');
+            qrContainer.innerHTML = '';
+
+            // Pakai API eksternal yang pasti bisa diakses browser
+            const encoded = encodeURIComponent(paymentData);
+            const img = document.createElement('img');
+            img.src = 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&bgcolor=ffffff&color=2C1A0E&data=' + encoded;
+            img.width = 200;
+            img.height = 200;
+            img.alt = 'QR Code Pembayaran';
+            img.style.borderRadius = '8px';
+            img.onerror = () => {
+                qrContainer.innerHTML = '<p style="color:#f44336;font-size:12px;padding:10px;"><i class="fa-solid fa-triangle-exclamation"></i> Gagal memuat QR.<br>Coba refresh halaman.</p>';
+            };
+            qrContainer.appendChild(img);
+        }
+
+        function initPage() {
+            const orderId = localStorage.getItem('currentOrderId');
+            const kodeOrder = localStorage.getItem('currentKodeOrder');
+            const totalPrice = localStorage.getItem('currentTotalPrice');
+
+            console.log('LocalStorage check:', { orderId, kodeOrder, totalPrice });
+
+            if (!orderId || !kodeOrder) {
+                // Jangan langsung redirect — tampilkan pesan error dulu
+                document.getElementById('qrcode').innerHTML = '<p style="color:#f44336;font-size:13px;padding:10px;"><i class="fa-solid fa-triangle-exclamation"></i><br>Data order tidak ditemukan.<br>Silakan order ulang.</p>';
+                document.getElementById('countdownTimer').innerHTML = '';
+                document.getElementById('paymentAmount').textContent = '-';
+                setTimeout(() => { window.location.href = 'menu.html'; }, 3000);
+                return;
+            }
+
+            // Tampilkan info
+            document.getElementById('kodeOrder').textContent = kodeOrder;
+            document.getElementById('paymentAmount').textContent = 'Rp ' + formatPrice(parseInt(totalPrice) || 0);
+
+            // Build QR
+            const paymentData = kodeOrder;
+            buildQR(paymentData);
+
+            // Start polling & countdown
+            startPaymentCheck();
+            startCountdown();
+        }
+
+        // ============ CHECK STATUS ============
+        async function checkPaymentStatus() {
+            const orderId = localStorage.getItem('currentOrderId');
+            if (!orderId) return;
+
+            const btn = document.getElementById('checkStatusBtn');
+            if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Checking...'; }
+
+            try {
+                const { data: order, error } = await supabase
+                    .from('orders').select('status').eq('id', orderId).single();
+
+                if (error) throw error;
+
+                if (order.status === 'processing' || order.status === 'completed') {
+                    clearInterval(paymentCheckInterval);
+                    clearInterval(countdownInterval);
+                    showToast('✓ Pembayaran dikonfirmasi! Mengalihkan...');
+                    setTimeout(() => { window.location.href = 'waiting.html'; }, 1500);
+                } else if (order.status === 'cancelled') {
+                    clearInterval(paymentCheckInterval);
+                    clearInterval(countdownInterval);
+                    showToast('Order telah dibatalkan.', true);
+                    setTimeout(() => { window.location.href = 'menu.html'; }, 2000);
+                } else {
+                    showToast('Masih menunggu konfirmasi pembayaran...');
+                    if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fa-regular fa-rotate-right"></i> Check Payment Status'; }
+                }
+            } catch (err) {
+                console.error(err);
+                showToast('Gagal cek status: ' + err.message, true);
+                if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fa-regular fa-rotate-right"></i> Check Payment Status'; }
+            }
+        }
+
+        function startPaymentCheck() {
+            paymentCheckInterval = setInterval(async () => {
+                const orderId = localStorage.getItem('currentOrderId');
+                if (!orderId) return;
+                try {
+                    const { data: order } = await supabase
+                        .from('orders').select('status').eq('id', orderId).single();
+                    if (order && (order.status === 'processing' || order.status === 'completed')) {
+                        clearInterval(paymentCheckInterval);
+                        clearInterval(countdownInterval);
+                        showToast('✓ Pembayaran dikonfirmasi!');
+                        setTimeout(() => { window.location.href = 'waiting.html'; }, 1500);
+                    }
+                } catch(e) {}
+            }, 5000);
+        }
+
+        // ============ COUNTDOWN ============
+        function startCountdown() {
+            const timerEl = document.getElementById('countdownTimer');
+            countdownInterval = setInterval(() => {
+                if (timeLeft <= 0) {
+                    clearInterval(countdownInterval);
+                    clearInterval(paymentCheckInterval);
+                    showToast('Waktu pembayaran habis.', true);
+                    setTimeout(() => cancelOrder(true), 2000);
+                } else {
+                    const m = Math.floor(timeLeft / 60);
+                    const s = timeLeft % 60;
+                    timerEl.innerHTML = '<i class="fa-regular fa-clock"></i> Time remaining: ' + m + ':' + s.toString().padStart(2, '0');
+                    timeLeft--;
+                }
+            }, 1000);
+        }
+
+        // ============ CANCEL ORDER ============
+        async function cancelOrder(expired = false) {
+            if (!expired) {
+                const confirmed = confirm('Yakin ingin membatalkan order ini?');
+                if (!confirmed) return;
+            }
+
+            const btn = document.getElementById('cancelOrderBtn');
+            if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Cancelling...'; }
+
+            clearInterval(paymentCheckInterval);
+            clearInterval(countdownInterval);
+
+            const orderId = localStorage.getItem('currentOrderId');
+            if (orderId) {
+                try {
+                    await supabase.from('orders').update({ status: 'cancelled' }).eq('id', orderId);
+                } catch(e) { console.warn('Could not update status:', e); }
+            }
+
+            localStorage.removeItem('currentOrderId');
+            localStorage.removeItem('currentKodeOrder');
+            localStorage.removeItem('currentTotalPrice');
+
+            showToast('Order dibatalkan.');
+            setTimeout(() => { window.location.href = 'menu.html'; }, 1200);
+        }
+
+        // ============ EVENT LISTENERS ============
+        document.getElementById('checkStatusBtn').addEventListener('click', checkPaymentStatus);
+        document.getElementById('cancelOrderBtn').addEventListener('click', () => cancelOrder(false));
+
+        // ============ START ============
+        // Tunggu Supabase JS selesai load baru jalankan
+        window.addEventListener('load', initPage);
+    </script>
+</body>
+</html>

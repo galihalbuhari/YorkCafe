@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout - York Heritage</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;500;600;700&family=Be+Vietnam+Pro:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary: #C8860A;
+            --secondary: #2C1A0E;
+            --bg-neutral: #F5F0EB;
+            --radius-md: 16px;
+            --radius-sm: 12px;
+            --shadow-sm: 0 4px 12px rgba(0,0,0,0.08);
+        }
+        body {
+            font-family: 'Be Vietnam Pro', sans-serif;
+            background: var(--bg-neutral);
+        }
+        .app-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: var(--bg-neutral);
+            min-height: 100vh;
+            padding-bottom: 80px;
+        }
+        .cafe-header {
+            background: white;
+            padding: 20px;
+            border-bottom-left-radius: 24px;
+            border-bottom-right-radius: 24px;
+            box-shadow: var(--shadow-sm);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .back-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--secondary);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+        }
+        .checkout-content {
+            padding: 20px;
+        }
+        .customer-section, .order-summary-section {
+            background: white;
+            border-radius: var(--radius-md);
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow-sm);
+        }
+        .customer-section h3, .order-summary-section h3 {
+            margin-bottom: 12px;
+            color: var(--secondary);
+        }
+        .customer-name-display {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px;
+            background: var(--bg-neutral);
+            border-radius: var(--radius-sm);
+        }
+        .checkout-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #E8E0D8;
+        }
+        .item-quantity {
+            font-weight: 600;
+            color: var(--primary);
+            margin-right: 8px;
+        }
+        .summary-divider {
+            height: 1px;
+            background: #E8E0D8;
+            margin: 16px 0;
+        }
+        .summary-total {
+            display: flex;
+            justify-content: space-between;
+            padding: 16px 0;
+            font-size: 18px;
+            font-weight: 700;
+        }
+        .total-amount {
+            color: var(--primary);
+            font-size: 22px;
+        }
+        .btn-primary {
+            width: 100%;
+            padding: 16px 24px;
+            background: linear-gradient(135deg, var(--primary), #E6A017);
+            color: white;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-family: 'Be Vietnam Pro', sans-serif;
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 20px;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-sm);
+        }
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            display: flex;
+            justify-content: space-around;
+            padding: 12px 20px 20px;
+            max-width: 600px;
+            margin: 0 auto;
+            z-index: 100;
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.08);
+        }
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            color: #999;
+        }
+        .nav-item.active {
+            color: var(--primary);
+        }
+        .toast {
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: white;
+            padding: 12px 20px;
+            border-radius: 50px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 2000;
+            animation: slideUp 0.3s ease-out;
+        }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateX(-50%) translateY(20px); }
+            to { opacity: 1; transform: translateX(-50%) translateY(0); }
+        }
+        .loading-spinner {
+            text-align: center;
+            padding: 40px;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <header class="cafe-header">
+            <div class="header-top">
+                <button class="back-btn" onclick="history.back()">
+                    <i class="fa-solid fa-arrow-left"></i>
+                </button>
+                <h2>Checkout</h2>
+                <div style="width: 40px;"></div>
+            </div>
+        </header>
+
+        <div class="checkout-content">
+            <div class="customer-section">
+                <h3>Customer Information</h3>
+                <div class="customer-name-display">
+                    <i class="fa-regular fa-user"></i>
+                    <span id="checkoutCustomerName"></span>
+                </div>
+            </div>
+
+            <div class="order-summary-section">
+                <h3>Order Summary</h3>
+                <div id="checkoutItems"></div>
+                <div class="summary-divider"></div>
+                <div class="summary-total">
+                    <span>Total Payment</span>
+                    <span id="checkoutTotal" class="total-amount"></span>
+                </div>
+            </div>
+
+            <button id="confirmOrderBtn" class="btn-primary">
+                Confirm & Place Order
+                <i class="fa-regular fa-credit-card"></i>
+            </button>
+        </div>
+
+        <nav class="bottom-nav">
+            <a href="menu.html" class="nav-item">
+                <i class="fa-solid fa-utensils"></i>
+                <span>Menu</span>
+            </a>
+            <a href="cart.html" class="nav-item active">
+                <i class="fa-solid fa-cart-shopping"></i>
+                <span>Cart</span>
+            </a>
+            <a href="orders.html" class="nav-item">
+                <i class="fa-solid fa-clock-rotate-left"></i>
+                <span>Orders</span>
+            </a>
+        </nav>
+    </div>
+
+    <script src="https://unpkg.com/@supabase/supabase-js@2.39.0/dist/umd/supabase.js"></script>
+    <script>
+        // ============ KONFIGURASI ============
+        const SUPABASE_URL = 'https://jlagwghdwyrejsapourt.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_qjTC0cTyjCMaqAHvXLlI6g_EhU3_caa';
+        
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        
+        const CART_KEY = 'york_cart';
+        
+        // ============ FUNCTIONS ============
+        function formatPrice(price) {
+            return new Intl.NumberFormat('id-ID').format(price);
+        }
+        
+        function showToast(message, isError = false) {
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.style.background = isError ? '#ffebee' : '#e8f5e9';
+            toast.style.color = isError ? '#c62828' : '#2e7d32';
+            toast.innerHTML = message;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+        
+        function getCart() {
+            const cart = localStorage.getItem(CART_KEY);
+            return cart ? JSON.parse(cart) : [];
+        }
+        
+        function clearCart() {
+            localStorage.removeItem(CART_KEY);
+        }
+        
+        function generateKodeOrder() {
+            const date = new Date();
+            const year = date.getFullYear().toString().slice(-2);
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            const random = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+            return `YK${year}${month}${day}${random}`;
+        }
+        
+        async function createOrder(customerName, items, totalAmount) {
+            const kodeOrder = generateKodeOrder();
+            
+            // 1. Insert ke tabel orders
+            const { data: order, error: orderError } = await supabase
+                .from('orders')
+                .insert({
+                    customer_name: customerName,
+                    status: 'pending',
+                    total_price: totalAmount,
+                    kode_order: kodeOrder
+                })
+                .select()
+                .single();
+            
+            if (orderError) {
+                console.error('Order insert error:', orderError);
+                throw orderError;
+            }
+            
+            // 2. Insert ke tabel order_items
+            const orderItems = items.map(item => ({
+                order_id: order.id,
+                menu_id: item.id,
+                quantity: item.quantity,
+                notes: item.notes || '',
+                subtotal: item.price * item.quantity
+            }));
+            
+            const { error: itemsError } = await supabase
+                .from('order_items')
+                .insert(orderItems);
+            
+            if (itemsError) {
+                console.error('Order items error:', itemsError);
+                throw itemsError;
+            }
+            
+            return { order, kodeOrder };
+        }
+        
+        // ============ MAIN ============
+        const customerName = localStorage.getItem('customerName') || 'Guest';
+        document.getElementById('checkoutCustomerName').textContent = customerName;
+        
+        const cart = getCart();
+        
+        if (!cart || cart.length === 0) {
+            showToast('Your cart is empty', true);
+            setTimeout(() => {
+                window.location.href = 'menu.html';
+            }, 2000);
+        }
+        
+        // Hitung total
+        const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+        const service = subtotal * 0.05;
+        const total = subtotal + service;
+        
+        // Tampilkan items
+        const itemsContainer = document.getElementById('checkoutItems');
+        itemsContainer.innerHTML = cart.map(item => `
+            <div class="checkout-item">
+                <div>
+                    <span class="item-quantity">${item.quantity}x</span>
+                    <span class="item-name">${escapeHtml(item.name)}</span>
+                    ${item.notes ? `<br><small style="color: #999; font-size: 12px;">Note: ${escapeHtml(item.notes)}</small>` : ''}
+                </div>
+                <span class="item-price">Rp ${formatPrice(item.price * item.quantity)}</span>
+            </div>
+        `).join('');
+        
+        document.getElementById('checkoutTotal').textContent = `Rp ${formatPrice(total)}`;
+        
+        // Submit order
+        document.getElementById('confirmOrderBtn').addEventListener('click', async () => {
+            const btn = document.getElementById('confirmOrderBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Processing...';
+            
+            try {
+                // Buat order langsung tanpa cek stok yang bisa gagal
+                const { order, kodeOrder } = await createOrder(customerName, cart, total);
+                
+                // Clear cart
+                clearCart();
+                
+                // Simpan info order untuk halaman payment & waiting
+                localStorage.setItem('currentOrderId', order.id);
+                localStorage.setItem('currentKodeOrder', kodeOrder);
+                localStorage.setItem('currentTotalPrice', total);
+                
+                showToast('Order placed! Redirecting to payment...');
+                
+                // Redirect ke halaman QR Payment
+                setTimeout(() => {
+                    window.location.href = 'payment.html';
+                }, 1200);
+                
+            } catch (error) {
+                console.error('Order error:', error);
+                showToast(error.message || 'Failed to submit order. Please try again.', true);
+                btn.disabled = false;
+                btn.innerHTML = 'Confirm & Place Order <i class="fa-regular fa-credit-card"></i>';
+            }
+        });
+        
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+    </script>
+</body>
+</html>

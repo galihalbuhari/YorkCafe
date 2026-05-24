@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>York Heritage Cafe</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;500;600;700&family=Be+Vietnam+Pro:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="landing-page">
+    <div class="welcome-container">
+        <div class="welcome-card">
+            <div class="logo-wrapper">
+                <div class="logo-icon">
+                    <i class="fa-solid fa-mug-hot"></i>
+                </div>
+                <h1 class="logo-text">YORK</h1>
+                <p class="logo-tagline">Heritage Coffee</p>
+            </div>
+            
+            <div class="welcome-content">
+                <h2 class="welcome-title">Welcome to<br>York Heritage</h2>
+                <p class="welcome-subtitle">Experience the finest coffee crafted with passion</p>
+                
+                <div class="input-group">
+                    <label for="customerName">
+                        <i class="fa-regular fa-user"></i>
+                        What should we call you?
+                    </label>
+                    <input type="text" id="customerName" placeholder="Your name..." class="elegant-input" autocomplete="off">
+                </div>
+                
+                <button id="startOrderBtn" class="btn-primary btn-large">
+                    <span>Start Ordering</span>
+                    <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+        
+        <div class="decorative-elements">
+            <div class="coffee-bean bean-1"></div>
+            <div class="coffee-bean bean-2"></div>
+        </div>
+    </div>
+
+    <script src="js/utils.js"></script>
+    <script>
+        // Handle start ordering
+        document.getElementById('startOrderBtn')?.addEventListener('click', () => {
+            const name = document.getElementById('customerName')?.value.trim();
+            if (!name) {
+                alert('Please enter your name to continue');
+                return;
+            }
+            localStorage.setItem('customerName', name);
+            window.location.href = 'menu.html';
+        });
+        
+        document.getElementById('customerName')?.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                document.getElementById('startOrderBtn')?.click();
+            }
+        });
+    </script>
+</body>
+</html>

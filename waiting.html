@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Status - York Heritage</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;500;600;700&family=Be+Vietnam+Pro:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary: #C8860A;
+            --secondary: #2C1A0E;
+            --tertiary: #1C0A00;
+            --bg-neutral: #F5F0EB;
+        }
+        body {
+            font-family: 'Be Vietnam Pro', sans-serif;
+        }
+        .waiting-container {
+            max-width: 600px;
+            margin: 0 auto;
+            min-height: 100vh;
+            background: linear-gradient(135deg, var(--tertiary), var(--secondary));
+            padding: 40px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .order-status-card {
+            background: white;
+            border-radius: 24px;
+            padding: 32px;
+            text-align: center;
+            width: 100%;
+            box-shadow: 0 16px 40px rgba(0,0,0,0.16);
+        }
+        .status-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 24px;
+            background: var(--bg-neutral);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .status-icon i {
+            font-size: 40px;
+            color: var(--primary);
+        }
+        .order-number {
+            margin: 8px 0;
+            color: #666;
+        }
+        .order-code {
+            margin-bottom: 16px;
+            font-family: monospace;
+            font-size: 18px;
+            background: var(--bg-neutral);
+            padding: 8px;
+            border-radius: 12px;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 8px 20px;
+            border-radius: 30px;
+            font-weight: 600;
+            margin: 16px 0;
+        }
+        .status-pending { background: #FFF3E0; color: #FF9800; }
+        .status-processing { background: #E3F2FD; color: #2196F3; }
+        .status-completed { background: #E8F5E9; color: #4CAF50; }
+        .status-cancelled { background: #FFEBEE; color: #F44336; }
+        .progress-steps {
+            display: flex;
+            justify-content: space-between;
+            margin: 32px 0;
+            position: relative;
+        }
+        .progress-steps::before {
+            content: '';
+            position: absolute;
+            top: 24px;
+            left: 10%;
+            right: 10%;
+            height: 2px;
+            background: #E8E0D8;
+            z-index: 1;
+        }
+        .step {
+            text-align: center;
+            flex: 1;
+            position: relative;
+            z-index: 2;
+            background: white;
+            padding: 0 8px;
+        }
+        .step i {
+            width: 48px;
+            height: 48px;
+            background: #E8E0D8;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 8px;
+            transition: all 0.3s;
+        }
+        .step.active i {
+            background: var(--primary);
+            color: white;
+        }
+        .step.completed i {
+            background: #4CAF50;
+            color: white;
+        }
+        .step span {
+            font-size: 12px;
+            color: #999;
+        }
+        .order-summary {
+            margin: 24px 0;
+            text-align: left;
+            border-top: 1px solid #E8E0D8;
+            padding-top: 16px;
+        }
+        .order-summary-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+        }
+        .order-total {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            font-weight: 700;
+            border-top: 1px solid #E8E0D8;
+            margin-top: 8px;
+        }
+        .estimated-time {
+            text-align: center;
+            padding: 16px;
+            background: var(--bg-neutral);
+            border-radius: 12px;
+            margin-top: 20px;
+            font-size: 14px;
+        }
+        .btn-primary {
+            width: 100%;
+            padding: 14px 24px;
+            background: linear-gradient(135deg, var(--primary), #E6A017);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-family: 'Be Vietnam Pro', sans-serif;
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 20px;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <div class="waiting-container">
+        <div class="order-status-card">
+            <div class="status-icon">
+                <i class="fa-regular fa-clock"></i>
+            </div>
+            
+            <h2>Your Order is Being Processed</h2>
+            <p class="order-number">Order ID: <span id="orderNumber"></span></p>
+            <p class="order-code">Code: <strong id="kodeOrder"></strong></p>
+            
+            <div class="status-badge status-pending" id="statusBadge">
+                Order Received
+            </div>
+            
+            <div class="progress-steps">
+                <div class="step active" data-status="pending">
+                    <i class="fa-regular fa-receipt"></i>
+                    <span>Received</span>
+                </div>
+                <div class="step" data-status="processing">
+                    <i class="fa-solid fa-fire"></i>
+                    <span>Preparing</span>
+                </div>
+            </div>
+            
+            <div id="orderSummary" class="order-summary">
+                <div class="loading-spinner">Loading order details...</div>
+            </div>
+            
+            <div class="estimated-time">
+                <i class="fa-regular fa-hourglass-half"></i>
+                <span>Estimated wait time: 10-15 minutes</span>
+            </div>
+            
+            <button id="newOrderBtn" class="btn-primary" style="display: none;">
+                Start New Order
+                <i class="fa-solid fa-mug-hot"></i>
+            </button>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/@supabase/supabase-js@2.39.0/dist/umd/supabase.js"></script>
+    <script>
+        const SUPABASE_URL = 'https://jlagwghdwyrejsapourt.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_qjTC0cTyjCMaqAHvXLlI6g_EhU3_caa'; // GANTI DENGAN KEY LENGKAP!
+        
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        
+        let orderStatusSubscription = null;
+        
+        function formatPrice(price) {
+            return new Intl.NumberFormat('id-ID').format(price);
+        }
+        
+        function updateProgressSteps(status) {
+            const steps = document.querySelectorAll('.step');
+            steps.forEach(step => {
+                step.classList.remove('active', 'completed');
+                const stepStatus = step.dataset.status;
+                
+                if (stepStatus === status) {
+                    step.classList.add('active');
+                }
+                
+                if ((stepStatus === 'pending' && (status === 'processing' || status === 'completed')) ||
+                    (stepStatus === 'processing' && status === 'completed')) {
+                    step.classList.add('completed');
+                }
+            });
+        }
+        
+        function updateOrderStatusUI(status) {
+            const statusBadge = document.getElementById('statusBadge');
+            const statusMap = {
+                pending: { text: 'Order Received - Waiting for Payment', class: 'status-pending' },
+                processing: { text: 'Being Prepared', class: 'status-processing' },
+                completed: { text: 'Ready to Serve!', class: 'status-completed' },
+                cancelled: { text: 'Order Cancelled', class: 'status-cancelled' }
+            };
+            
+            const statusInfo = statusMap[status] || statusMap.pending;
+            statusBadge.textContent = statusInfo.text;
+            statusBadge.className = `status-badge ${statusInfo.class}`;
+            
+            updateProgressSteps(status);
+            
+            const newOrderBtn = document.getElementById('newOrderBtn');
+            if (status === 'completed') {
+                newOrderBtn.style.display = 'block';
+                const statusIcon = document.querySelector('.status-icon i');
+                if (statusIcon) {
+                    statusIcon.className = 'fa-regular fa-circle-check';
+                    statusIcon.style.color = '#4CAF50';
+                }
+            } else if (status === 'cancelled') {
+                newOrderBtn.style.display = 'block';
+                newOrderBtn.textContent = 'Back to Menu';
+            }
+        }
+        
+        function displayOrderSummary(order) {
+            const summaryElement = document.getElementById('orderSummary');
+            if (!summaryElement) return;
+            
+            if (!order.order_items || order.order_items.length === 0) {
+                summaryElement.innerHTML = '<p>No items found</p>';
+                return;
+            }
+            
+            summaryElement.innerHTML = `
+                <h3 style="margin-bottom: 12px;">Your Order</h3>
+                ${order.order_items.map(item => `
+                    <div class="order-summary-item">
+                        <span>${item.quantity}x ${item.menus?.name || 'Menu Item'}</span>
+                        <span>Rp ${formatPrice(item.subtotal || item.price * item.quantity)}</span>
+                    </div>
+                `).join('')}
+                <div class="order-total">
+                    <strong>Total</strong>
+                    <strong>Rp ${formatPrice(order.total_price)}</strong>
+                </div>
+            `;
+        }
+        
+        async function loadOrderStatus() {
+            const orderId = localStorage.getItem('currentOrderId');
+            const kodeOrder = localStorage.getItem('currentKodeOrder');
+            
+            if (!orderId) {
+                window.location.href = 'menu.html';
+                return;
+            }
+            
+            document.getElementById('orderNumber').textContent = orderId;
+            if (kodeOrder) {
+                document.getElementById('kodeOrder').textContent = kodeOrder;
+            }
+            
+            // Load order details with items
+            const { data: order, error } = await supabase
+                .from('orders')
+                .select(`
+                    *,
+                    order_items (
+                        *,
+                        menus (*)
+                    )
+                `)
+                .eq('id', orderId)
+                .single();
+            
+            if (error) {
+                console.error('Error loading order:', error);
+                document.getElementById('orderSummary').innerHTML = `<p>Error loading order: ${error.message}</p>`;
+                return;
+            }
+            
+            if (order) {
+                updateOrderStatusUI(order.status);
+                displayOrderSummary(order);
+            }
+            
+            // Subscribe to realtime updates
+            if (orderStatusSubscription) {
+                supabase.removeChannel(orderStatusSubscription);
+            }
+            
+            orderStatusSubscription = supabase
+                .channel(`order-${orderId}`)
+                .on('postgres_changes', {
+                    event: 'UPDATE',
+                    schema: 'public',
+                    table: 'orders',
+                    filter: `id=eq.${orderId}`
+                }, (payload) => {
+                    console.log('Order status updated:', payload.new.status);
+                    updateOrderStatusUI(payload.new.status);
+                })
+                .subscribe();
+        }
+        
+        document.getElementById('newOrderBtn')?.addEventListener('click', () => {
+            localStorage.removeItem('currentOrderId');
+            localStorage.removeItem('currentKodeOrder');
+            localStorage.removeItem('currentTotalPrice');
+            window.location.href = 'menu.html';
+        });
+        
+        loadOrderStatus();
+    </script>
+</body>
+</html>

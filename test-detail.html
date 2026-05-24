@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Supabase Detail</title>
+    <meta charset="UTF-8">
+    <style>
+        body { font-family: monospace; padding: 20px; }
+        .success { color: green; }
+        .error { color: red; }
+        pre { background: #f5f5f5; padding: 10px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>Testing Supabase Connection - Detail</h1>
+    <div id="result"></div>
+    
+    <script src="https://unpkg.com/@supabase/supabase-js@2.39.0/dist/umd/supabase.js"></script>
+    
+    <script>
+        const SUPABASE_URL = 'https://jlagwghdwyrejsapourt.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_qjTC0cTyjCMaqAHvXLlI6g_EhU3_caa'; // GANTI DENGAN KEY LENGKAP!
+        
+        const resultDiv = document.getElementById('result');
+        
+        function log(msg, isError = false) {
+            const p = document.createElement('div');
+            p.className = isError ? 'error' : 'success';
+            p.innerHTML = msg;
+            resultDiv.appendChild(p);
+        }
+        
+        async function runTests() {
+            log('📡 Connecting to Supabase...');
+            const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            
+            // TEST 1: Cek koneksi ke tabel menus
+            log('🔍 Test 1: Check menus table...');
+            try {
+                const { data, error, count } = await supabase
+                    .from('menus')
+                    .select('*', { count: 'exact' });
+                
+                if (error) {
+                    log(`❌ Menus error: ${error.message}`, true);
+                    log(`Error details: ${JSON.stringify(error)}`, true);
+                } else {
+                    log(`✅ Menus table accessible! Found ${data.length} records`);
+                    if (data.length > 0) {
+                        log(`📋 First menu: ${JSON.stringify(data[0])}`);
+                    }
+                }
+            } catch (err) {
+                log(`❌ Exception: ${err.message}`, true);
+            }
+            
+            // TEST 2: Cek struktur kolom menus
+            log('🔍 Test 2: Check menus columns...');
+            try {
+                const { data, error } = await supabase
+                    .from('menus')
+                    .select('*')
+                    .limit(1);
+                
+                if (data && data[0]) {
+                    const columns = Object.keys(data[0]);
+                    log(`✅ Columns found: ${columns.join(', ')}`);
+                }
+            } catch (err) {
+                log(`❌ ${err.message}`, true);
+            }
+            
+            // TEST 3: Cek categories
+            log('🔍 Test 3: Check categories table...');
+            try {
+                const { data, error } = await supabase
+                    .from('categories')
+                    .select('*');
+                
+                if (error) {
+                    log(`❌ Categories error: ${error.message}`, true);
+                } else {
+                    log(`✅ Categories table accessible! Found ${data.length} records`);
+                    if (data.length > 0) {
+                        log(`📋 Categories: ${data.map(c => c.name).join(', ')}`);
+                    }
+                }
+            } catch (err) {
+                log(`❌ ${err.message}`, true);
+            }
+            
+            // TEST 4: Coba query dengan filter is_available
+            log('🔍 Test 4: Check is_available filter...');
+            try {
+                const { data, error } = await supabase
+                    .from('menus')
+                    .select('*')
+                    .eq('is_available', true);
+                
+                if (error) {
+                    log(`❌ Filter error: ${error.message}`, true);
+                } else {
+                    log(`✅ Available menus: ${data.length} items`);
+                }
+            } catch (err) {
+                log(`❌ ${err.message}`, true);
+            }
+            
+            // TEST 5: Coba insert test data (jika perlu)
+            log('🔍 Test 5: Check if we can insert (RLS test)...');
+            try {
+                const { data, error } = await supabase
+                    .from('menus')
+                    .insert({ 
+                        name: 'Test Menu', 
+                        price: 10000,
+                        description: 'Test',
+                        is_available: true 
+                    })
+                    .select();
+                
+                if (error) {
+                    if (error.message.includes('row-level security')) {
+                        log(`⚠️ RLS is enabled (normal for read-only)`, false);
+                    } else {
+                        log(`❌ Insert error: ${error.message}`, true);
+                    }
+                } else if (data) {
+                    log(`✅ Insert successful! Test menu created`);
+                    // Clean up test data
+                    await supabase.from('menus').delete().eq('id', data[0].id);
+                }
+            } catch (err) {
+                log(`❌ ${err.message}`, true);
+            }
+            
+            log('🏁 Tests completed!');
+        }
+        
+        runTests();
+    </script>
+</body>
+</html>

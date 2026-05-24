@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Supabase Connection</title>
+    <meta charset="UTF-8">
+</head>
+<body>
+    <h1>Testing Supabase Connection</h1>
+    <div id="result">Loading...</div>
+    
+    <!-- Ganti dengan CDN yang lebih stabil -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2.39.0/dist/umd/supabase.js"></script>
+    
+    <script>
+        // GANTI DENGAN CREDENTIALS DARI TEMAN ANDA!!!
+        const SUPABASE_URL = 'https://jlagwghdwyrejsapourt.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_qjTC0cTyjCMaqAHvXLlI6g_EhU3_caa'; // GANTI DENGAN YANG LENGKAP
+        
+        console.log('Supabase URL:', SUPABASE_URL);
+        console.log('Checking supabaseJs...');
+        
+        // Cek dengan nama variable yang berbeda
+        if (typeof supabase === 'undefined' && typeof window.supabase === 'undefined') {
+            document.getElementById('result').innerHTML = '❌ Supabase JS library not loaded!<br>';
+            document.getElementById('result').innerHTML += 'Checking alternative...<br>';
+            
+            // Coba cek window object
+            console.log('Window keys:', Object.keys(window));
+            document.getElementById('result').innerHTML += `Available: ${Object.keys(window).join(', ')}<br>`;
+        } else {
+            const sb = window.supabase || supabase;
+            document.getElementById('result').innerHTML = '✅ Supabase JS loaded!<br>';
+            
+            const supabaseClient = sb.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            
+            async function testConnection() {
+                try {
+                    document.getElementById('result').innerHTML += 'Testing connection...<br>';
+                    
+                    const { data, error } = await supabaseClient
+                        .from('menus')
+                        .select('*')
+                        .limit(5);
+                    
+                    if (error) {
+                        document.getElementById('result').innerHTML += `❌ Error: ${error.message}<br>`;
+                    } else {
+                        document.getElementById('result').innerHTML += `✅ Success! Found ${data.length} menus<br>`;
+                        document.getElementById('result').innerHTML += `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+                    }
+                } catch (err) {
+                    document.getElementById('result').innerHTML += `❌ Exception: ${err.message}<br>`;
+                }
+            }
+            
+            testConnection();
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>York Heritage Cafe - Menu</title>
+    <meta name="referrer" content="no-referrer">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;600;700&family=Be+Vietnam+Pro:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary: #C8860A;
+            --secondary: #2C1A0E;
+            --bg-neutral: #F5F0EB;
+            --radius-md: 16px;
+            --shadow-sm: 0 4px 12px rgba(0,0,0,0.08);
+        }
+        body {
+            font-family: 'Be Vietnam Pro', sans-serif;
+            background: var(--bg-neutral);
+        }
+        .app-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: var(--bg-neutral);
+            min-height: 100vh;
+            padding-bottom: 80px;
+        }
+        .cafe-header {
+            background: white;
+            padding: 20px;
+            border-bottom-left-radius: 24px;
+            border-bottom-right-radius: 24px;
+            box-shadow: var(--shadow-sm);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        .cafe-name {
+            font-family: 'Noto Serif', serif;
+            font-size: 20px;
+            color: var(--secondary);
+        }
+        .cafe-location {
+            font-size: 12px;
+            color: #6B5B4F;
+        }
+        .customer-badge {
+            background: var(--bg-neutral);
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+        }
+        .search-container {
+            position: relative;
+        }
+        .search-container i {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #999;
+        }
+        .search-input {
+            width: 100%;
+            padding: 12px 16px 12px 42px;
+            border: 1px solid #E8E0D8;
+            border-radius: 12px;
+            font-family: 'Be Vietnam Pro', sans-serif;
+        }
+        .category-tabs {
+            display: flex;
+            gap: 12px;
+            padding: 20px;
+            overflow-x: auto;
+            position: sticky;
+            top: 110px;
+            background: var(--bg-neutral);
+            z-index: 9;
+        }
+        .tab-btn {
+            padding: 10px 20px;
+            background: white;
+            border: none;
+            border-radius: 30px;
+            font-weight: 500;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.3s;
+        }
+        .tab-btn.active {
+            background: var(--primary);
+            color: white;
+        }
+        .menu-grid {
+            padding: 0 20px 100px 20px;
+            display: grid;
+            gap: 16px;
+        }
+        .menu-card {
+            background: white;
+            border-radius: var(--radius-md);
+            display: flex;
+            gap: 16px;
+            padding: 12px;
+            box-shadow: var(--shadow-sm);
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .menu-card:hover {
+            transform: translateY(-2px);
+        }
+        .menu-image {
+            width: 80px;
+            height: 80px;
+            border-radius: 12px;
+            object-fit: cover;
+            background: #E8E0D8;
+        }
+        .menu-info {
+            flex: 1;
+        }
+        .menu-name {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        .menu-price {
+            color: var(--primary);
+            font-weight: 600;
+        }
+        .add-to-cart-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            cursor: pointer;
+            align-self: center;
+            transition: transform 0.2s;
+        }
+        .add-to-cart-btn:hover {
+            transform: scale(1.1);
+        }
+        .floating-cart {
+            position: fixed;
+            bottom: 90px;
+            right: 20px;
+            width: 56px;
+            height: 56px;
+            background: var(--primary);
+            border: none;
+            border-radius: 50%;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+            z-index: 100;
+            transition: transform 0.2s;
+        }
+        .floating-cart:hover {
+            transform: scale(1.1);
+        }
+        .cart-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: var(--secondary);
+            color: white;
+            font-size: 12px;
+            padding: 4px 8px;
+            border-radius: 20px;
+            min-width: 20px;
+            text-align: center;
+        }
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            display: flex;
+            justify-content: space-around;
+            padding: 12px 20px 20px;
+            max-width: 600px;
+            margin: 0 auto;
+            z-index: 100;
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.08);
+        }
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            color: #999;
+            transition: color 0.3s;
+        }
+        .nav-item.active {
+            color: var(--primary);
+        }
+        .nav-item i {
+            font-size: 22px;
+        }
+        .nav-item span {
+            font-size: 12px;
+        }
+        .loading-spinner {
+            text-align: center;
+            padding: 40px;
+        }
+        .error-state {
+            text-align: center;
+            padding: 40px;
+        }
+        .toast {
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: white;
+            padding: 12px 20px;
+            border-radius: 50px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 2000;
+            animation: slideUp 0.3s ease-out;
+        }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateX(-50%) translateY(20px); }
+            to { opacity: 1; transform: translateX(-50%) translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <header class="cafe-header">
+            <div class="header-top">
+                <div class="cafe-info">
+                    <h2 class="cafe-name">YORK</h2>
+                    <p class="cafe-location">Heritage Coffee House</p>
+                </div>
+                <div class="customer-badge">
+                    <i class="fa-regular fa-user"></i>
+                    <span id="customerNameDisplay"></span>
+                </div>
+            </div>
+            <div class="search-container">
+                <i class="fa-solid fa-search"></i>
+                <input type="text" id="searchMenu" placeholder="Search menu..." class="search-input">
+            </div>
+        </header>
+
+        <div class="category-tabs">
+            <button class="tab-btn active" data-category="all">All</button>
+            <button class="tab-btn" data-category="Drink">☕ Drinks</button>
+            <button class="tab-btn" data-category="Food">🍽️ Food</button>
+        </div>
+
+        <div class="menu-grid" id="menuGrid">
+            <div class="loading-spinner">
+                <i class="fa-solid fa-spinner fa-spin"></i>
+                <p>Loading menu...</p>
+            </div>
+        </div>
+
+        <button id="floatingCartBtn" class="floating-cart">
+            <i class="fa-solid fa-bag-shopping"></i>
+            <span id="cartBadge" class="cart-badge">0</span>
+        </button>
+
+        <nav class="bottom-nav">
+            <a href="menu.html" class="nav-item active">
+                <i class="fa-solid fa-utensils"></i>
+                <span>Menu</span>
+            </a>
+            <a href="cart.html" class="nav-item">
+                <i class="fa-solid fa-cart-shopping"></i>
+                <span>Cart</span>
+            </a>
+            <a href="orders.html" class="nav-item">
+                <i class="fa-solid fa-clock-rotate-left"></i>
+                <span>Orders</span>
+            </a>
+        </nav>
+    </div>
+
+    <div id="menuModal" class="modal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 1000; align-items: center; justify-content: center; padding: 20px;">
+        <div class="modal-content" style="background: white; border-radius: 24px; max-width: 500px; width: 100%; max-height: 90vh; overflow-y: auto; position: relative; padding: 20px;">
+            <button class="modal-close" style="position: absolute; top: 16px; right: 16px; background: white; border: none; font-size: 28px; cursor: pointer; width: 36px; height: 36px; border-radius: 50%;">&times;</button>
+            <div id="modalBody"></div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/@supabase/supabase-js@2.39.0/dist/umd/supabase.js"></script>
+    <script>
+        // ⚠️ PENTING: Ganti SUPABASE_ANON_KEY dengan anon key lengkap dari Supabase!
+        // Cara ambil: Supabase Dashboard → Settings → API → "anon public" key (format panjang eyJ...)
+        const SUPABASE_URL = 'https://jlagwghdwyrejsapourt.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_qjTC0cTyjCMaqAHvXLlI6g_EhU3_caa'; // ← GANTI INI dengan eyJ... key dari Supabase Settings > API
+        
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        
+        let currentMenu = [];
+        let currentCategory = 'all';
+        let searchQuery = '';
+        let categoriesMap = {}; // Untuk menyimpan mapping id -> name category
+        
+        function formatPrice(price) {
+            return new Intl.NumberFormat('id-ID').format(price);
+        }
+        
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        function showToast(message, isError = false) {
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.style.background = isError ? '#ffebee' : '#e8f5e9';
+            toast.style.color = isError ? '#c62828' : '#2e7d32';
+            toast.innerHTML = message;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+        
+        async function loadMenu() {
+            try {
+                console.log('Loading menu and categories...');
+                
+                // 1. Ambil data categories dulu
+                const { data: categories, error: catError } = await supabase
+                    .from('categories')
+                    .select('*');
+                
+                if (catError) {
+                    console.error('Categories error:', catError);
+                } else {
+                    console.log('Categories loaded:', categories);
+                    // Buat mapping id -> name untuk filter nanti
+                    categories.forEach(cat => {
+                        categoriesMap[cat.id] = cat.name;
+                    });
+                }
+                
+                // 2. Ambil data menus lengkap dengan join ke categories
+                const { data: menus, error } = await supabase
+                    .from('menus')
+                    .select(`
+                        *,
+                        categories (
+                            id,
+                            name
+                        )
+                    `)
+                    .eq('is_available', true);
+                
+                if (error) {
+                    console.error('Menus error:', error);
+                    throw error;
+                }
+                
+                console.log('Menus loaded:', menus);
+                
+                if (!menus || menus.length === 0) {
+                    document.getElementById('menuGrid').innerHTML = `
+                        <div class="error-state">
+                            <i class="fa-regular fa-face-frown"></i>
+                            <p>No menu items available</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                currentMenu = menus;
+                displayMenu();
+                
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('menuGrid').innerHTML = `
+                    <div class="error-state">
+                        <i class="fa-regular fa-circle-exclamation"></i>
+                        <p>Error: ${error.message}</p>
+                        <button onclick="location.reload()" class="btn-primary" style="margin-top: 16px; padding: 10px 20px; background: #C8860A; color: white; border: none; border-radius: 12px; cursor: pointer;">Try Again</button>
+                    </div>
+                `;
+            }
+        }
+        
+        function displayMenu() {
+            const menuGrid = document.getElementById('menuGrid');
+            if (!menuGrid) return;
+            
+            let filtered = [...currentMenu];
+            
+            // FILTER BERDASARKAN KATEGORI
+            if (currentCategory !== 'all') {
+                filtered = filtered.filter(item => {
+                    // Ambil nama category dari item.categories atau dari mapping
+                    let categoryName = '';
+                    if (item.categories && item.categories.name) {
+                        categoryName = item.categories.name;
+                    } else if (item.category_id && categoriesMap[item.category_id]) {
+                        categoryName = categoriesMap[item.category_id];
+                    }
+                    
+                    console.log(`Menu: ${item.name}, Category: ${categoryName}, Filter: ${currentCategory}`);
+                    return categoryName === currentCategory;
+                });
+            }
+            
+            // FILTER BERDASARKAN PENCARIAN
+            if (searchQuery) {
+                filtered = filtered.filter(item => 
+                    item.name.toLowerCase().includes(searchQuery.toLowerCase())
+                );
+            }
+            
+            console.log(`Filtered: ${filtered.length} items (total: ${currentMenu.length}, category: ${currentCategory})`);
+            
+            if (filtered.length === 0) {
+                menuGrid.innerHTML = `
+                    <div class="error-state">
+                        <i class="fa-regular fa-face-frown"></i>
+                        <p>No menu found in "${currentCategory}" category</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            menuGrid.innerHTML = filtered.map(menu => {
+                // Tentukan nama category untuk ditampilkan
+                let categoryDisplay = '';
+                if (menu.categories && menu.categories.name) {
+                    categoryDisplay = menu.categories.name;
+                } else if (menu.category_id && categoriesMap[menu.category_id]) {
+                    categoryDisplay = categoriesMap[menu.category_id];
+                }
+                
+                const imgSrc = menu.image_url || 'https://placehold.co/80x80/E8E0D8/2C1A0E?text=☕';
+                return `
+                <div class="menu-card" data-id="${menu.id}">
+                    <img src="${imgSrc}" 
+                         class="menu-image"
+                         referrerpolicy="no-referrer"
+                         onerror="this.src='https://placehold.co/80x80/E8E0D8/2C1A0E?text=☕'">
+                    <div class="menu-info">
+                        <h3 class="menu-name">${escapeHtml(menu.name)}</h3>
+                        <p class="menu-price">Rp ${formatPrice(menu.price)}</p>
+                        ${categoryDisplay ? `<small style="color: #666;">${categoryDisplay}</small>` : ''}
+                        ${menu.description ? `<br><small style="color: #999;">${escapeHtml(menu.description.substring(0, 50))}</small>` : ''}
+                    </div>
+                    <button class="add-to-cart-btn" onclick="addToCart(${menu.id})">
+                        <i class="fa-solid fa-plus"></i>
+                    </button>
+                </div>
+            `}).join('');
+        }
+        
+        // Cart functions
+        function getCart() {
+            const cart = localStorage.getItem('york_cart');
+            return cart ? JSON.parse(cart) : [];
+        }
+        
+        function saveCart(cart) {
+            localStorage.setItem('york_cart', JSON.stringify(cart));
+            updateCartBadge();
+        }
+        
+        function updateCartBadge() {
+            const cart = getCart();
+            const total = cart.reduce((sum, item) => sum + item.quantity, 0);
+            const badge = document.getElementById('cartBadge');
+            if (badge) {
+                badge.textContent = total;
+                badge.style.display = total > 0 ? 'flex' : 'none';
+            }
+        }
+        
+        function addToCart(menuId) {
+            const menu = currentMenu.find(m => m.id === menuId);
+            if (!menu) return;
+            
+            const cart = getCart();
+            const existing = cart.find(item => item.id === menuId);
+            
+            if (existing) {
+                existing.quantity++;
+            } else {
+                cart.push({
+                    id: menu.id,
+                    name: menu.name,
+                    price: menu.price,
+                    quantity: 1
+                });
+            }
+            
+            saveCart(cart);
+            showToast(`✓ ${menu.name} added to cart`);
+        }
+        
+        // Show menu detail modal
+        async function showMenuDetail(menuId) {
+            const menu = currentMenu.find(m => m.id === menuId);
+            if (!menu) return;
+            
+            const modalBody = document.getElementById('modalBody');
+            modalBody.innerHTML = `
+                <div style="text-align: center;">
+                    <img src="${menu.image_url || 'https://placehold.co/300x200/E8E0D8/2C1A0E?text=☕'}" 
+                         style="width: 100%; border-radius: 16px; margin-bottom: 16px;"
+                         referrerpolicy="no-referrer"
+                         onerror="this.src='https://placehold.co/300x200/E8E0D8/2C1A0E?text=☕'">
+                    <h2>${escapeHtml(menu.name)}</h2>
+                    <p style="color: #666; margin: 12px 0;">${escapeHtml(menu.description || 'No description')}</p>
+                    <div style="font-size: 28px; color: var(--primary); font-weight: bold; margin: 16px 0;">
+                        Rp ${formatPrice(menu.price)}
+                    </div>
+                    <div style="margin: 16px 0;">
+                        <label>Quantity</label>
+                        <div style="display: flex; align-items: center; justify-content: center; gap: 16px; margin-top: 8px;">
+                            <button onclick="updateQuantity(-1)" style="width: 44px; height: 44px; border-radius: 50%; border: 1px solid #ddd; background: white; cursor: pointer; font-size: 20px;">-</button>
+                            <span id="detailQuantity" style="font-size: 20px; min-width: 50px; text-align: center;">1</span>
+                            <button onclick="updateQuantity(1)" style="width: 44px; height: 44px; border-radius: 50%; border: 1px solid #ddd; background: white; cursor: pointer; font-size: 20px;">+</button>
+                        </div>
+                    </div>
+                    <div style="margin: 16px 0;">
+                        <label>Additional Notes</label>
+                        <textarea id="orderNotes" placeholder="Any special requests?" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 12px; margin-top: 8px; font-family: inherit;" rows="3"></textarea>
+                    </div>
+                    <button onclick="addToCartWithDetails(${menu.id})" style="width: 100%; padding: 14px; background: var(--primary); color: white; border: none; border-radius: 12px; font-weight: 600; cursor: pointer; margin-top: 16px;">
+                        Add to Cart - Rp ${formatPrice(menu.price)}
+                    </button>
+                </div>
+            `;
+            
+            document.getElementById('menuModal').style.display = 'flex';
+            window.currentDetailMenu = menu;
+        }
+        
+        function updateQuantity(change) {
+            const quantitySpan = document.getElementById('detailQuantity');
+            if (quantitySpan) {
+                let currentQty = parseInt(quantitySpan.textContent);
+                let newQty = currentQty + change;
+                if (newQty >= 1) {
+                    quantitySpan.textContent = newQty;
+                    if (window.currentDetailMenu) {
+                        const totalPrice = window.currentDetailMenu.price * newQty;
+                        const addButton = document.querySelector('#modalBody button:last-child');
+                        if (addButton) {
+                            addButton.innerHTML = `Add to Cart - Rp ${formatPrice(totalPrice)}`;
+                        }
+                    }
+                }
+            }
+        }
+        
+        function addToCartWithDetails(menuId) {
+            const quantity = parseInt(document.getElementById('detailQuantity')?.textContent || '1');
+            const notes = document.getElementById('orderNotes')?.value || '';
+            const menu = window.currentDetailMenu;
+            
+            if (menu) {
+                const cart = getCart();
+                const existing = cart.find(item => item.id === menuId && item.notes === notes);
+                
+                if (existing) {
+                    existing.quantity += quantity;
+                } else {
+                    cart.push({
+                        id: menu.id,
+                        name: menu.name,
+                        price: menu.price,
+                        quantity: quantity,
+                        notes: notes
+                    });
+                }
+                
+                saveCart(cart);
+                showToast(`✓ ${menu.name} added to cart`);
+                document.getElementById('menuModal').style.display = 'none';
+            }
+        }
+        
+        // Event listeners
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentCategory = btn.dataset.category;
+                console.log('Category changed to:', currentCategory);
+                displayMenu();
+            });
+        });
+        
+        document.getElementById('searchMenu')?.addEventListener('input', (e) => {
+            searchQuery = e.target.value;
+            displayMenu();
+        });
+        
+        document.getElementById('floatingCartBtn')?.addEventListener('click', () => {
+            window.location.href = 'cart.html';
+        });
+        
+        // Modal close
+        document.querySelector('.modal-close')?.addEventListener('click', () => {
+            document.getElementById('menuModal').style.display = 'none';
+        });
+        
+        document.getElementById('menuModal')?.addEventListener('click', (e) => {
+            if (e.target === document.getElementById('menuModal')) {
+                document.getElementById('menuModal').style.display = 'none';
+            }
+        });
+        
+        // Add click listener untuk menu cards (delegation)
+        document.getElementById('menuGrid')?.addEventListener('click', (e) => {
+            const card = e.target.closest('.menu-card');
+            if (card && !e.target.closest('.add-to-cart-btn')) {
+                const menuId = parseInt(card.dataset.id);
+                showMenuDetail(menuId);
+            }
+        });
+        
+        // Load customer name
+        const customerName = localStorage.getItem('customerName') || 'Guest';
+        const nameDisplay = document.getElementById('customerNameDisplay');
+        if (nameDisplay) {
+            nameDisplay.textContent = customerName;
+        }
+        
+        // Start
+        loadMenu();
+        updateCartBadge();
+    </script>
+</body>
+</html>
