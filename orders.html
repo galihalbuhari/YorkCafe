@@ -330,7 +330,7 @@
         const SUPABASE_ANON_KEY = 'sb_publishable_qjTC0cTyjCMaqAHvXLlI6g_EhU3_caa';
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        let allOrders = [];
+        window.allOrders = [];
 
         function formatPrice(price) {
             return new Intl.NumberFormat('id-ID').format(price);
@@ -388,7 +388,7 @@
 
                 if (error) throw error;
 
-                allOrders = orders || [];
+                window.allOrders = orders || [];
 
                 if (allOrders.length === 0) {
                     container.innerHTML = `
@@ -402,7 +402,7 @@
                     return;
                 }
 
-                container.innerHTML = allOrders.map(order => {
+                container.innerHTML = allOrders.map((order, idx) => {
                     const itemsPreview = (order.order_items || [])
                         .slice(0, 3)
                         .map(i => `${i.quantity}x ${i.menus?.name || 'Item'}`)
@@ -410,7 +410,7 @@
                     const moreCount = (order.order_items || []).length - 3;
 
                     return `
-                    <div class="order-card" data-order-id="${order.id}">
+                    <div class="order-card" data-idx="${idx}" onclick="openOrderDetail(allOrders[${idx}].id)">
                         <div class="order-card-header">
                             <div>
                                 <div class="order-code">${order.kode_order || order.id.slice(0,8).toUpperCase()}</div>
@@ -511,15 +511,6 @@
         function goToPayment() {
             window.location.href = 'payment.html';
         }
-
-        // Event delegation untuk klik order card (lebih aman dari inline onclick)
-        document.getElementById('ordersList').addEventListener('click', function(e) {
-            const card = e.target.closest('.order-card');
-            if (card) {
-                const orderId = card.getAttribute('data-order-id');
-                if (orderId) openOrderDetail(orderId);
-            }
-        });
 
         // Close modal if clicking backdrop
         document.getElementById('orderDetailModal').addEventListener('click', function(e) {
