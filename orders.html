@@ -154,13 +154,19 @@
             display: none;
             position: fixed;
             inset: 0;
-            background: rgba(0,0,0,0.5);
+            background: rgba(0,0,0,0);
             z-index: 500;
             align-items: flex-end;
             justify-content: center;
+            transition: background 0.3s ease;
         }
         .modal-overlay.open {
             display: flex;
+            background: rgba(0,0,0,0.5);
+        }
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
         }
         .modal-sheet {
             background: white;
@@ -170,6 +176,7 @@
             max-width: 600px;
             max-height: 85vh;
             overflow-y: auto;
+            animation: slideUp 0.35s cubic-bezier(0.32, 0.72, 0, 1);
         }
         .modal-handle {
             width: 40px;
@@ -403,7 +410,7 @@
                     const moreCount = (order.order_items || []).length - 3;
 
                     return `
-                    <div class="order-card" onclick="openOrderDetail('${order.id}')">
+                    <div class="order-card" data-order-id="${order.id}">
                         <div class="order-card-header">
                             <div>
                                 <div class="order-code">${order.kode_order || order.id.slice(0,8).toUpperCase()}</div>
@@ -504,6 +511,15 @@
         function goToPayment() {
             window.location.href = 'payment.html';
         }
+
+        // Event delegation untuk klik order card (lebih aman dari inline onclick)
+        document.getElementById('ordersList').addEventListener('click', function(e) {
+            const card = e.target.closest('.order-card');
+            if (card) {
+                const orderId = card.getAttribute('data-order-id');
+                if (orderId) openOrderDetail(orderId);
+            }
+        });
 
         // Close modal if clicking backdrop
         document.getElementById('orderDetailModal').addEventListener('click', function(e) {
